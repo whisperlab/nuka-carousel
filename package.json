@@ -75,18 +75,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kenwheeler/nuka-carousel.git"
+    "url": "https://github.com/whisperlab/nuka-carousel.git"
   },
   "keywords": [
     "react",
     "carousel",
     "nuka"
   ],
-  "author": "Ken Wheeler",
+  "author": "whisperlab",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/FormidableLabs/nuka-carousel/issues"
+    "url": "https://github.com/whisperlab/nuka-carousel/issues"
   },
-  "homepage": "https://github.com/FormidableLabs/nuka-carousel",
+  "homepage": "https://github.com/whisperlab/nuka-carousel",
   "sideEffects": false
 }
