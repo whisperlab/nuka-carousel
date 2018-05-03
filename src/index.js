@@ -4,7 +4,7 @@ import ExecutionEnvironment from 'exenv';
 import Animate from 'react-move/Animate';
 import * as easing from 'd3-ease';
 import { PagingDots, PreviousButton, NextButton } from './default-controls';
-import webkitHack from './webkitHack';
+import webkitHack from './webkit-hack';
 
 const addEvent = function(elem, type, eventHandle) {
   if (elem === null || typeof elem === 'undefined') {
