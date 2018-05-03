@@ -4,6 +4,7 @@ import ExecutionEnvironment from 'exenv';
 import Animate from 'react-move/Animate';
 import * as easing from 'd3-ease';
 import { PagingDots, PreviousButton, NextButton } from './default-controls';
+import webkitHack from './webkitHack';
 
 const addEvent = function(elem, type, eventHandle) {
   if (elem === null || typeof elem === 'undefined') {
@@ -163,6 +164,8 @@ export default class Carousel extends React.Component {
         );
 
         if (direction !== 0) {
+          // A webkit only hack to prevent touch move events
+          webkitHack.preventTouchMove();
           e.preventDefault();
         }
 
@@ -201,10 +204,12 @@ export default class Carousel extends React.Component {
         });
       },
       onTouchEnd: e => {
+        webkitHack.releaseTouchMove();
         this.handleSwipe(e);
         this.handleMouseOut();
       },
       onTouchCancel: e => {
+        webkitHack.releaseTouchMove();
         this.handleSwipe(e);
       }
     };
