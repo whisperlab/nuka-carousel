@@ -7,14 +7,14 @@ A Pure ReactJS Carousel Component
 ### Install
 
 ```bash
-$ yarn add nuka-carousel
+$ yarn add @whisperlab/nuka-carousel
 ```
 
 ### Example
 
 ```jsx
 import React from 'react';
-import Carousel from 'nuka-carousel';
+import Carousel from '@whisperlab/nuka-carousel';
 
 export default class extends React.Component {
   render() {
@@ -219,7 +219,7 @@ You can control the state of the carousel from your parent component as shown be
 
 ```jsx
 import React from 'react';
-import Carousel from 'nuka-carousel';
+import Carousel from '@whisperlab/nuka-carousel';
 
 export default class extends React.Component {
   state = {
