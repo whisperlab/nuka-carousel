@@ -1054,7 +1054,11 @@ export default class Carousel extends React.Component {
 
     return (
       <div
-        className={['slider', this.props.className || ''].join(' ')}
+        className={[
+          'slider',
+          this.state.dragging ? 'slider--dragging' : '',
+          this.props.className || ''
+        ].join(' ')}
         style={Object.assign({}, this.getSliderStyles(), this.props.style)}
       >
         <Animate
