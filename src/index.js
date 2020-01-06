@@ -154,6 +154,9 @@ export default class Carousel extends React.Component {
           startY: e.touches[0].pageY
         };
         this.handleMouseOver();
+        this.setState({
+          dragging: true
+        });
       },
       onTouchMove: e => {
         const direction = this.swipeDirection(
