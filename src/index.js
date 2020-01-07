@@ -375,7 +375,15 @@ export default class Carousel extends React.Component {
       },
       onTouchEnd: e => {
         webkitHack.releaseTouchMove();
-        this.handleSwipe(e);
+        if (
+          this.touchObject.length === 0 ||
+          this.touchObject.length === undefined
+        ) {
+          this.setState({ dragging: false });
+        }
+        else {
+          this.handleSwipe(e);
+        }
         this.handleMouseOut();
       },
       onTouchCancel: e => {
