@@ -380,8 +380,7 @@ export default class Carousel extends React.Component {
           this.touchObject.length === undefined
         ) {
           this.setState({ dragging: false });
-        }
-        else {
+        } else {
           this.handleSwipe(e);
         }
         this.handleMouseOut();
