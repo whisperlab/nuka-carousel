@@ -15,6 +15,7 @@ class App extends React.Component {
       underlineHeader: false,
       zoomScale: 0.5,
       slidesToShow: 1,
+      slidesToScroll: 1,
       cellAlign: 'left',
       transitionMode: 'scroll',
       heightMode: 'max',
@@ -39,16 +40,17 @@ class App extends React.Component {
     return (
       <div style={{ width: '50%', margin: 'auto' }}>
         <Carousel
-          slidesToShow={this.state.slidesToShow}
-          slidesToScroll={this.state.slidesToScroll}
-          withoutControls={this.state.withoutControls}
-          transitionMode={this.state.transitionMode}
-          cellAlign={this.state.cellAlign}
           animation={this.state.animation}
-          zoomScale={Number(this.state.zoomScale || 0)}
-          wrapAround={this.state.wrapAround}
-          slideIndex={this.state.slideIndex}
+          cellAlign={this.state.cellAlign}
           heightMode={this.state.heightMode}
+          slideIndex={this.state.slideIndex}
+          slideListMargin={0}
+          slidesToScroll={this.state.slidesToScroll}
+          slidesToShow={this.state.slidesToShow}
+          transitionMode={this.state.transitionMode}
+          withoutControls={this.state.withoutControls}
+          wrapAround={this.state.wrapAround}
+          zoomScale={Number(this.state.zoomScale || 0)}
           renderTopCenterControls={({ currentSlide }) => (
             <div
               style={{
@@ -59,7 +61,7 @@ class App extends React.Component {
                   : 'none'
               }}
             >
-              Nuka Carousel: Slide {currentSlide + 1}
+              Nuka Carousel: Slide {Math.ceil(currentSlide) + 1}
             </div>
           )}
           renderAnnounceSlideMessage={({ currentSlide, slideCount }) => {

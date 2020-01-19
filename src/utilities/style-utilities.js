@@ -1,6 +1,46 @@
+import React from 'react';
+
 export const getImgTagStyles = () => {
   return `.slider-slide > img { width: 100%; display: block; }
           .slider-slide > img:focus { margin: auto; }`;
+};
+
+export const getSlideHeight = props => {
+  const childCount = React.Children.count(props.children);
+  const listWidth = props.slideWidth * childCount;
+  const spacingOffset = props.cellSpacing * childCount;
+
+  const calculatedHeight = props.vertical
+    ? listWidth + spacingOffset
+    : props.slideHeight;
+
+  return calculatedHeight > 0 && props.heightMode !== 'current'
+    ? calculatedHeight
+    : 'auto';
+};
+
+export const getAlignmentOffset = (slideIndex, config) => {
+  let offset = 0;
+
+  switch (config.cellAlign) {
+    case 'left': {
+      offset = 0;
+      offset -= config.cellSpacing * slideIndex;
+      break;
+    }
+    case 'center': {
+      offset = (config.frameWidth - config.slideWidth) / 2;
+      offset -= config.cellSpacing * slideIndex;
+      break;
+    }
+    case 'right': {
+      offset = config.frameWidth - config.slideWidth;
+      offset -= config.cellSpacing * slideIndex;
+      break;
+    }
+  }
+
+  return offset;
 };
 
 export const getDecoratorStyles = position => {
@@ -133,6 +173,8 @@ export const getTransitionProps = (props, state) => {
     cellSpacing: props.cellSpacing,
     currentSlide: state.currentSlide,
     dragging: props.dragging,
+    frameWidth: parseInt(state.frameWidth),
+    heightMode: props.heightMode,
     isWrappingAround: state.isWrappingAround,
     left: state.left,
     slideCount: state.slideCount,

@@ -18,6 +18,7 @@ import {
   calcSomeInitialState
 } from './utilities/utilities';
 import {
+  getAlignmentOffset,
   getImgTagStyles,
   getDecoratorStyles,
   getSliderStyles,
@@ -665,26 +666,9 @@ export default class Carousel extends React.Component {
   // Animation Method
 
   getTargetLeft(touchOffset, slide) {
-    let offset;
     const target = slide || this.state.currentSlide;
-    switch (this.state.cellAlign) {
-      case 'left': {
-        offset = 0;
-        offset -= this.props.cellSpacing * target;
-        break;
-      }
-      case 'center': {
-        offset = (this.state.frameWidth - this.state.slideWidth) / 2;
-        offset -= this.props.cellSpacing * target;
-        break;
-      }
-      case 'right': {
-        offset = this.state.frameWidth - this.state.slideWidth;
-        offset -= this.props.cellSpacing * target;
-        break;
-      }
-    }
 
+    let offset = getAlignmentOffset(target, { ...this.props, ...this.state });
     let left = this.state.slideWidth * target;
 
     const lastSlide =
@@ -875,7 +859,10 @@ export default class Carousel extends React.Component {
         this.props.cellAlign !== 'left'
           ? offset
           : Math.min(offset, childrenCount - slidesToShow);
-      this.goToSlide(nextSlideIndex);
+
+      // If nextSlideIndex is larger than last index, then
+      // just navigate to last index
+      this.goToSlide(Math.min(nextSlideIndex, childrenCount - 1));
     }
   }
 
@@ -986,13 +973,10 @@ export default class Carousel extends React.Component {
         slidesToScroll,
         slidesToShow,
         slideWidth,
-        cellAlign,
-        left: props.vertical ? 0 : this.getTargetLeft(),
-        top: props.vertical ? this.getTargetLeft() : 0
+        cellAlign
       },
       () => {
         stateCb();
-        this.setLeft();
       }
     );
   }
@@ -1031,6 +1015,8 @@ export default class Carousel extends React.Component {
           func &&
           typeof func === 'function' &&
           func({
+            top: this.state.top,
+            left: this.state.left,
             cellAlign: this.props.cellAlign,
             cellSpacing: this.props.cellSpacing,
             currentSlide: this.state.currentSlide,
@@ -1042,7 +1028,8 @@ export default class Carousel extends React.Component {
             slidesToScroll: this.state.slidesToScroll,
             slidesToShow: this.state.slidesToShow,
             slideWidth: this.state.slideWidth,
-            wrapAround: this.props.wrapAround
+            wrapAround: this.props.wrapAround,
+            vertical: this.props.vertical
           });
 
         return (
@@ -1205,7 +1192,18 @@ Carousel.propTypes = {
   beforeSlide: PropTypes.func,
   cellAlign: PropTypes.oneOf(['left', 'center', 'right']),
   cellSpacing: PropTypes.number,
+  disableAnimation: PropTypes.bool,
+  disableEdgeSwiping: PropTypes.bool,
+  dragging: PropTypes.bool,
+  easing: PropTypes.string,
+  edgeEasing: PropTypes.string,
   enableKeyboardControls: PropTypes.bool,
+  frameOverflow: PropTypes.string,
+  framePadding: PropTypes.string,
+  height: PropTypes.string,
+  heightMode: PropTypes.oneOf(['first', 'current', 'max']),
+  initialSlideHeight: PropTypes.number,
+  initialSlideWidth: PropTypes.number,
   keyCodeConfig: PropTypes.exact({
     previousSlide: PropTypes.arrayOf(PropTypes.number),
     nextSlide: PropTypes.arrayOf(PropTypes.number),
@@ -1213,19 +1211,9 @@ Carousel.propTypes = {
     lastSlide: PropTypes.arrayOf(PropTypes.number),
     pause: PropTypes.arrayOf(PropTypes.number)
   }),
-  disableAnimation: PropTypes.bool,
-  disableEdgeSwiping: PropTypes.bool,
-  dragging: PropTypes.bool,
-  easing: PropTypes.string,
-  edgeEasing: PropTypes.string,
-  frameOverflow: PropTypes.string,
-  framePadding: PropTypes.string,
-  height: PropTypes.string,
-  heightMode: PropTypes.oneOf(['first', 'current', 'max']),
-  initialSlideHeight: PropTypes.number,
-  initialSlideWidth: PropTypes.number,
   onDragStart: PropTypes.func,
   onResize: PropTypes.func,
+  opacityScale: PropTypes.number,
   pauseOnHover: PropTypes.bool,
   renderAnnounceSlideMessage: PropTypes.func,
   renderBottomCenterControls: PropTypes.func,
@@ -1238,6 +1226,7 @@ Carousel.propTypes = {
   renderTopLeftControls: PropTypes.func,
   renderTopRightControls: PropTypes.func,
   slideIndex: PropTypes.number,
+  slideListMargin: PropTypes.number,
   slideOffset: PropTypes.number,
   slidesToScroll: PropTypes.oneOfType([
     PropTypes.number,
@@ -1251,9 +1240,7 @@ Carousel.propTypes = {
   vertical: PropTypes.bool,
   width: PropTypes.string,
   withoutControls: PropTypes.bool,
-  wrapAround: PropTypes.bool,
-  opacityScale: PropTypes.number,
-  slideListMargin: PropTypes.number
+  wrapAround: PropTypes.bool
 };
 
 Carousel.defaultProps = {
@@ -1265,17 +1252,17 @@ Carousel.defaultProps = {
   beforeSlide() {},
   cellAlign: 'left',
   cellSpacing: 0,
-  enableKeyboardControls: false,
-  keyCodeConfig: {},
   disableAnimation: false,
   disableEdgeSwiping: false,
   dragging: true,
   easing: 'easeCircleOut',
   edgeEasing: 'easeElasticOut',
+  enableKeyboardControls: false,
   frameOverflow: 'hidden',
   framePadding: '0px',
   height: 'inherit',
   heightMode: 'max',
+  keyCodeConfig: {},
   onDragStart() {},
   onResize() {},
   pauseOnHover: true,
@@ -1284,6 +1271,7 @@ Carousel.defaultProps = {
   renderCenterLeftControls: props => <PreviousButton {...props} />,
   renderCenterRightControls: props => <NextButton {...props} />,
   slideIndex: 0,
+  slideListMargin: 10,
   slideOffset: 25,
   slidesToScroll: 1,
   slidesToShow: 1,
@@ -1295,8 +1283,7 @@ Carousel.defaultProps = {
   vertical: false,
   width: '100%',
   withoutControls: false,
-  wrapAround: false,
-  slideListMargin: 10
+  wrapAround: false
 };
 
 export { NextButton, PreviousButton, PagingDots };

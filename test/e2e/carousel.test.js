@@ -27,37 +27,6 @@ describe('Nuka Carousel', () => {
       await expect(page).toMatch('Nuka Carousel: Slide 1');
     });
 
-    it('should navigate to the last slide from the first in wrapAround mode.', async () => {
-      await expect(page).toClick('button', { text: 'Toggle Wrap Around' });
-      await expect(page).toMatch('Nuka Carousel: Slide 1');
-      await expect(page).toClick('button', { text: 'Prev' });
-      await expect(page).toMatch('Nuka Carousel: Slide 6');
-    });
-
-    it('should navigate to the first slide from the last in wrapAround mode.', async () => {
-      await expect(page).toClick('button', { text: 'Toggle Wrap Around' });
-      await page.waitFor(600); // need to let slide transition complete
-      await expect(page).toClick('button', { text: '6' });
-      await expect(page).toMatch('Nuka Carousel: Slide 6');
-      await page.waitFor(600); // need to let slide transition complete
-      await expect(page).toClick('button', { text: 'Next' });
-      await expect(page).toMatch('Nuka Carousel: Slide 1');
-    });
-
-    it('should navigate to the first slide from the second in wrapAround mode with only 3 slides.', async () => {
-      await expect(page).toClick('button', { text: 'Toggle Wrap Around' });
-      await page.waitFor(600); // need to let slide transition complete
-      await expect(page).toClick('button', {
-        text: 'Toggle Show 3 Slides Only'
-      });
-      await page.waitFor(600); // need to let slide transition complete
-      await expect(page).toClick('button', { text: '3' });
-      await expect(page).toMatch('Nuka Carousel: Slide 3');
-      await page.waitFor(600); // need to let slide transition complete
-      await expect(page).toClick('button', { text: 'Next' });
-      await expect(page).toMatch('Nuka Carousel: Slide 1');
-    });
-
     it('should be hidden if containing div visibility is set to hidden', async () => {
       const visibleStyles = await page.evaluate(getStyles, `.slider`, [
         'visibility'
@@ -75,6 +44,63 @@ describe('Nuka Carousel', () => {
 
       await expect(hiddenStyles.visibility).toMatch('hidden');
     });
+
+    describe('when in wrapAround mode', () => {
+      beforeEach(async () => {
+        await expect(page).toClick('button', { text: 'Toggle Wrap Around' });
+      });
+
+      it('should navigate to the last slide from the first.', async () => {
+        await expect(page).toMatch('Nuka Carousel: Slide 1');
+        await expect(page).toClick('button', { text: 'Prev' });
+        await expect(page).toMatch('Nuka Carousel: Slide 6');
+      });
+
+      it('should navigate to the first slide from the last.', async () => {
+        await page.waitFor(600); // need to let slide transition complete
+        await expect(page).toClick('button', { text: '6' });
+        await expect(page).toMatch('Nuka Carousel: Slide 6');
+        await page.waitFor(600); // need to let slide transition complete
+        await expect(page).toClick('button', { text: 'Next' });
+        await expect(page).toMatch('Nuka Carousel: Slide 1');
+      });
+
+      it('should navigate to the first slide from the second with only 3 slides.', async () => {
+        await page.waitFor(600); // need to let slide transition complete
+        await expect(page).toClick('button', {
+          text: 'Toggle Show 3 Slides Only'
+        });
+        await page.waitFor(600); // need to let slide transition complete
+        await expect(page).toClick('button', { text: '3' });
+        await expect(page).toMatch('Nuka Carousel: Slide 3');
+        await page.waitFor(600); // need to let slide transition complete
+        await expect(page).toClick('button', { text: 'Next' });
+        await expect(page).toMatch('Nuka Carousel: Slide 1');
+      });
+    });
+  };
+
+  const nextThroughAllSlides = async () => {
+    await expect(page).toMatch('Nuka Carousel: Slide 1');
+
+    await expect(page).toClick('button', { text: 'Next' });
+    await expect(page).toMatch('Nuka Carousel: Slide 2');
+    await page.waitFor(600);
+
+    await expect(page).toClick('button', { text: 'Next' });
+    await expect(page).toMatch('Nuka Carousel: Slide 3');
+    await page.waitFor(600);
+
+    await expect(page).toClick('button', { text: 'Next' });
+    await expect(page).toMatch('Nuka Carousel: Slide 4');
+    await page.waitFor(600);
+
+    await expect(page).toClick('button', { text: 'Next' });
+    await expect(page).toMatch('Nuka Carousel: Slide 5');
+    await page.waitFor(600);
+
+    await expect(page).toClick('button', { text: 'Next' });
+    await expect(page).toMatch('Nuka Carousel: Slide 6');
   };
 
   beforeEach(async () => {
@@ -84,6 +110,38 @@ describe('Nuka Carousel', () => {
   describe('Button Navigation and Loading', () => {
     describe('transitionMode - scroll', () => {
       defaultNavigationAndLoading();
+
+      describe('when next button is pressed', () => {
+        it('should allow you to navigate entire slide deck when left aligned', async () => {
+          await expect(page).toClick('button', {
+            text: 'Toggle Partially Visible Slides'
+          });
+          await expect(page).toClick('button', { text: 'Left' });
+          await page.waitFor(600); // need to let slide transition complete
+
+          await nextThroughAllSlides();
+        });
+
+        it('should allow you to navigate entire slide deck when center aligned', async () => {
+          await expect(page).toClick('button', {
+            text: 'Toggle Partially Visible Slides'
+          });
+          await expect(page).toClick('button', { text: 'Center' });
+          await page.waitFor(600); // need to let slide transition complete
+
+          await nextThroughAllSlides();
+        });
+
+        it('should allow you to navigate entire slide deck when right aligned', async () => {
+          await expect(page).toClick('button', {
+            text: 'Toggle Partially Visible Slides'
+          });
+          await expect(page).toClick('button', { text: 'Right' });
+          await page.waitFor(600); // need to let slide transition complete
+
+          await nextThroughAllSlides();
+        });
+      });
     });
 
     describe('transitionMode - fade', () => {
@@ -215,9 +273,13 @@ describe('Nuka Carousel', () => {
         ['left']
       );
       const getWidth = parseInt(firstSlide.width, 10);
-      const slideCount = (await page.$$('.slider-slide')).length;
+
+      // first slide in first position
       await expect(firstSlide.left).toMatch('0px');
-      await expect(lastSlide.left).toMatch(`${getWidth * (slideCount - 1)}px`);
+
+      // last slide, positioned right behind first slide
+      await expect(lastSlide.left).toMatch(`-${getWidth}px`);
+
       await expect(page).toClick('button', { text: 'Prev' });
       await expect(page).toMatch('Nuka Carousel: Slide 6');
       await page.waitFor(600); // need to let slide transition complete
